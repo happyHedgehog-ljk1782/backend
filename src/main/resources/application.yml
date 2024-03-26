@@ -4,7 +4,7 @@
 spring:
   datasource:
     driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-    url: jdbc:log4jdbc:mysql://mysql.coffit.today:3300/oneinfurniture
+    url: jdbc:log4jdbc:mysql://localhost:3306/oneinfurniture
     username: oneinfurniture
     password: oneinfurniture1234
   servlet:
