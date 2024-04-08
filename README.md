@@ -1,1 +1,2 @@
-https://onedrive.live.com/edit?id=28B54C33403EDC6B!898010&resid=28B54C33403EDC6B!898010&ithint=file%2cpptx&authkey=!APOaAnvDmJc0a2E&wdo=2&cid=28b54c33403edc6b
+# "1 in 가구" 쇼핑몰 프로젝트
+[바로가기](https://github.com/happyHedgehog-ljk1782)
