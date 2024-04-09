@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/myshop")
-@Slf4j
 @AllArgsConstructor
 public class OrderDetailsController {
     private final OrderDetailsService orderDetailsService;
@@ -45,63 +44,38 @@ public class OrderDetailsController {
                                           @RequestParam(required = false) LocalDate dateEnd,
                                           @RequestParam(value = "currentPage", defaultValue = "1") int pageNo,
                                           ModelAndView mv) {
-        log.info("");
-        log.info("");
-        log.info("orderDeliveryInfo : OrderDetailsController..... start");
         LoginUserDTO loginUserDTO = loginDetails.getLoginUserDTO();
         int userCode = loginUserDTO.getUserCode();
         if (dateStart == null && dateEnd == null) {
-            // 맨 처음 접속했을때는 3개월 이내의 정보를 검색한다.
             dateStart = LocalDate.now().minusMonths(3);
             dateEnd = LocalDate.now();
         }
         if (dateEnd == null) {
-            // 만약 끝날짜가 null 이라면. 확실히 오늘 날짜까지
-            // 즉 처음 접속한게 아니지만. 그래도 끝날짜가 null이었다면.
             dateEnd = LocalDate.now();
         }
         if (dateStart == null) {
-            // 처음접속한게 아니지만. 시작날짜가 null인 경우 전체 검색이므로 2000년 1월 1일로 선택한다.
             dateStart = LocalDate.of(2000, 1, 1);
         }
 
-        log.info("orderDeliveryInfo ===== 주문상태: " + state);
-        log.info("orderDeliveryInfo ===== 시작날짜: " + dateStart);
-        log.info("orderDeliveryInfo ===== 끝날짜: " + dateEnd);
-        /*이 위치에 오면 처음에 입력받은 값이 null이라고 할지라도 값이 모두 생긴다.*/
         OrderDTO order = new OrderDTO(state, dateStart, dateEnd.plusDays(1));
-        log.info("현재검색조건...order : " + order);
         String info = "orderDeliveryInfo";
         int totalCount = orderDetailsService.selectTotalCountOrderInfo(userCode, order, info);
-        log.info("orderDeliveryInfo : OrderDetailsController...조건에 맞는 게시글 수... :  " + totalCount);
 
-        /*한 페이지에 5개*/
         int limit = 5;
-        /*한번에 페이징 버튼 5개*/
         int buttonAmount = 5;
 
         OrderDetailsSelectCriteria orderDetailsSelectCriteria = OrderDetailsPagenation.getOrderDetailsSelectCriteria(pageNo, totalCount, limit, buttonAmount, order);
-        log.info("");
-        log.info("");
-        log.info("orderDeliveryInfo : OrderDetailsController..... orderDetailsSelectCriteria : " + orderDetailsSelectCriteria);
 
         List<OrderListDTO> orderList = orderDetailsService.selectOrderInfoList(userCode, orderDetailsSelectCriteria, info);
-        log.info("orderDeliveryInfo : OrderDetailsController ... orderList : " + orderList);
         mv.addObject("orderList", orderList);
 
         orderDetailsSelectCriteria.setOrder(new OrderDTO(state, dateStart, dateEnd));
         mv.addObject("orderDetailsSelectCriteria", orderDetailsSelectCriteria);
-        log.info("orderDeliveryInfo : OrderDetailsController... orderDetailsSelectCriteria" + orderDetailsSelectCriteria);
 
         mv.setViewName("/client/content/myshop/orderDeliveryInfo");
         mv.addObject("state", state);
         mv.addObject("dateStart", dateStart);
         mv.addObject("dateEnd", dateEnd);
-
-        log.info("state : " + state);
-        log.info("dateStart : " + dateStart);
-        log.info("dateEnd : " + dateEnd);
-
 
         /*이부분에서 일주일전, 한달전, 세달전, 여섯달 전에 대한 변수를 반환한다.*/
         mv.addObject("now", LocalDate.now());
@@ -119,52 +93,32 @@ public class OrderDetailsController {
                                             @RequestParam(required = false) LocalDate dateEnd,
                                             @RequestParam(value = "currentPage", defaultValue = "1") int pageNo,
                                             ModelAndView mv) {
-        log.info("");
-        log.info("");
-        log.info("exchangePaybackInfo : OrderDetailsController..... start");
         LoginUserDTO loginUserDTO = loginDetails.getLoginUserDTO();
         int userCode = loginUserDTO.getUserCode();
         if (dateStart == null && dateEnd == null) {
-            // 맨 처음 접속했을때는 3개월 이내의 정보를 검색한다.
             dateStart = LocalDate.now().minusMonths(3);
             dateEnd = LocalDate.now();
         }
         if (dateEnd == null) {
-            // 만약 끝날짜가 null 이라면. 확실히 오늘 날짜까지
-            // 즉 처음 접속한게 아니지만. 그래도 끝날짜가 null이었다면.
             dateEnd = LocalDate.now();
         }
         if (dateStart == null) {
-            // 처음접속한게 아니지만. 시작날짜가 null인 경우 전체 검색이므로 2000년 1월 1일로 선택한다.
             dateStart = LocalDate.of(2000, 1, 1);
         }
 
-        log.info("exchangePaybackInfo ===== 주문상태: " + state);
-        log.info("exchangePaybackInfo ===== 시작날짜: " + dateStart);
-        log.info("exchangePaybackInfo ===== 끝날짜: " + dateEnd);
-        /*이 위치에 오면 처음에 입력받은 값이 null이라고 할지라도 값이 모두 생긴다.*/
         OrderDTO order = new OrderDTO(state, dateStart, dateEnd.plusDays(1));
-        log.info("현재검색조건...order : " + order);
         String info = "exchangePaybackInfo";
         int totalCount = orderDetailsService.selectTotalCountOrderInfo(userCode, order, info);
-        log.info("exchangePaybackInfo : OrderDetailsController...조건에 맞는 게시글 수... :  " + totalCount);
 
-        /*한 페이지에 5개*/
         int limit = 5;
-        /*한번에 페이징 버튼 5개*/
         int buttonAmount = 5;
 
         OrderDetailsSelectCriteria orderDetailsSelectCriteria = OrderDetailsPagenation.getOrderDetailsSelectCriteria(pageNo, totalCount, limit, buttonAmount, order);
-        log.info("");
-        log.info("");
         orderDetailsSelectCriteria.setOrder(new OrderDTO(state, dateStart, dateEnd));
-        log.info("exchangePaybackInfo : OrderDetailsController..... orderDetailsSelectCriteria : " + orderDetailsSelectCriteria);
 
         List<OrderListDTO> orderList = orderDetailsService.selectOrderInfoList(userCode, orderDetailsSelectCriteria, info);
-        log.info("exchangePaybackInfo : OrderDetailsController ... orderList : " + orderList);
         mv.addObject("orderList", orderList);
         mv.addObject("orderDetailsSelectCriteria", orderDetailsSelectCriteria);
-        log.info("exchangePaybackInfo : OrderDetailsController... orderDetailsSelectCriteria" + orderDetailsSelectCriteria);
 
         mv.setViewName("/client/content/myshop/exchangePaybackInfo");
         mv.addObject("state", state);
@@ -209,7 +163,6 @@ public class OrderDetailsController {
         int userCode = loginUserDTO.getUserCode();
         boolean result = orderDetailsService.isYourOrder(userCode, orderCode);
         if (!result) {
-            log.info("계정정보가 달라서 메인으로 돌아갑니다.");
             return "redirect:/";
         }
         OrderDetailsCollect orderDetailsCollect = orderDetailsService.getOrderDetails(orderCode);
@@ -253,31 +206,20 @@ public class OrderDetailsController {
                                     @RequestParam(required = false) String email,
                                     RedirectAttributes redirectAttributes,
                                     Model model) {
-        log.info("orderCode : " + orderCode);
-        log.info("email : " + email);
         if (orderCode == null || email == null) {
             redirectAttributes.addFlashAttribute("message", "주문번호 또는 이메일을 입력해주세요.");
             return "redirect:/myshop/guestOrderSearch";
         }
         Integer newOrderCode = orderDetailsService.selectOrderCode(orderCode, email); // 현재 주문번호에 알맞는 이메일이 있는지. 그리고 같은지
-        // 물론 orderCode 를 넣어서 orderCode를 반환받는게 이상하지만, 이메일까지 들어가므로 null이 뜰 가능성이 충분히 있다.
         if (newOrderCode == null) {
             redirectAttributes.addFlashAttribute("message", "조건에 맞는 비회원이 없습니다.\n다시입력해주세요.");
             return "redirect:/myshop/guestOrderSearch";
         }
-        log.info("newOrderCode : " + newOrderCode);
-        log.info("orderCode : " + orderCode);
-        log.info("email : " + email);
-        log.info("newOrderCode != orderCode : " + (newOrderCode != orderCode));
-        log.info("!newOrderCode.equals(orderCode) : " + (!newOrderCode.equals(orderCode)));
         if (!newOrderCode.equals(orderCode)) {
-            log.info("계정정보가 달라서 메인으로 돌아갑니다.");
             redirectAttributes.addFlashAttribute("message", "계정정보가 달라서 메인으로 돌아갑니다.");
             return "redirect:/";
         }
         OrderDetailsCollect orderDetailsCollect = orderDetailsService.getOrderDetails(orderCode);
-
-        log.info("orderDetailsInfo : OrderDetailsController ... orderDetailsCollect : \n" + orderDetailsCollect);
 
         model.addAttribute("orderDetails", orderDetailsCollect);
         int sumCostPrice = orderDetailsCollect

@@ -22,7 +22,6 @@ import java.time.format.DateTimeFormatter;
 
 @Controller
 @RequestMapping("/myshop/withdrawalReason")
-@Slf4j
 @AllArgsConstructor
 public class WithdrawalReasonController {
     private final WithdrawalReasonService withdrawalReasonService;

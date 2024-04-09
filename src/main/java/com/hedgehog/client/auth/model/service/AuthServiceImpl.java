@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-@Slf4j
 @AllArgsConstructor
 public class AuthServiceImpl implements AuthService {
     private final AuthMapper mapper;
@@ -33,7 +32,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public boolean selectUserById(String userId) {
         String result = mapper.selectUserById(userId);
-        return result != null ? true : false; // 아이디가 있으면 true를, 없으면 false를
+        return result != null ? true : false; 
     }
 
     @Override
@@ -45,7 +44,6 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public int selectCertifiedNumber(String randomCode) throws UserCertifiedException {
-        /*인증코드 테이블에 값을 생성하고. 다음에 key값을 다시 반환하기.*/
         int result = mapper.insertCode(randomCode);
         if (result <= 0)
             throw new UserCertifiedException("입력에 실패했습니다.");
@@ -65,62 +63,44 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public boolean registMember(MemberDTO newMember) throws MessagingException, UnsupportedEncodingException {
-        /*
-         * 0. tbl_user에 아이디 있는지 검색하기.
-         * 1. 아이디가 없으면 tbl_user에 아이디, 비밀번호, 이름 넣기.
-         * 사용자구분은 '고객'. 생성날짜는 현재날짜. 결과값
-         * 2. tbl_user에서 사용자 코드 들고와서 저장하기.
-         * 3. tbl_authority_list에 값 넣기. 권한코드는 3. 사용자 코드는 가져온 값
-         * 4. tbl_customer에 이메일이 있는지 검색하기
-         * 5. 이메일이 없으면 tbl_customer에 사용자코드, 이메일, 넣기
-         * 회원여부는 'Y' 넣기
-         * 6. tbl_member 에 사용자코드, 생년월일, 성별, 이메일동의여부 넣기.
-         * 적립금은 0, 누적금액은 0        *
-         * */
-        /*id가 있으면 true*/
-        boolean result1 = mapper.selectUserById(newMember.getUserId()) != null ? true : false;
-        if (result1) {
-            return false; // 아이디가 있으면 생성중단
+        boolean resultIsExistId = mapper.selectUserById(newMember.getUserId()) != null ? true : false;
+        if (resultIsExistId) {
+            return false; 
         }
-        boolean result2 = mapper.insertUser(newMember) != 1 ? true : false;
-        if (result2) {
-            return false; // user를 생성 못했으면 생성중단
+        boolean resultNotCreateId = mapper.insertUser(newMember) != 1 ? true : false;
+        if (resultNotCreateId) {
+            return false; 
         }
         Integer userCode = mapper.selectUserCode();
         if (userCode == null) {
-            return false; // userCode를 못찾는다면. 생성중단
+            return false; 
         }
-        boolean result3 = mapper.insertAuthorityList(userCode) != 1 ? true : false;
-        if (result3) {
-            return false; // authorityList를 생성못했으면 생성중단
+        boolean resultNotCreateAuthorityList = mapper.insertAuthorityList(userCode) != 1 ? true : false;
+        if (resultNotCreateAuthorityList) {
+            return false; 
         }
-        boolean result4 = mapper.selectMemberByEmail(newMember.getEmail()) != null ? true : false;
-        if (result4) {
-            return false; // 만약 이메일이 customer에 들어있다면. 생성중단
+        boolean resultIsExistEmail = mapper.selectMemberByEmail(newMember.getEmail()) != null ? true : false;
+        if (resultIsExistEmail) {
+            return false;
         }
-        boolean result5 = mapper.insertCustomer(userCode, newMember) != 1 ? true : false;
-        if (result5) {
-            return false; // customer에 데이터를 넣는데 넣은 값이 없으면 생성중단.
+        boolean resultIsNotCustomer = mapper.insertCustomer(userCode, newMember) != 1 ? true : false;
+        if (resultIsNotCustomer) {
+            return false; 
         }
-        boolean result6 = mapper.insertMember(userCode, newMember) != 1 ? true : false;
-        if (result6) {
-            return false; // member에 데이터를 넣는데 넣은 값이 없으면 생성중단.
+        boolean resultIsNotMember = mapper.insertMember(userCode, newMember) != 1 ? true : false;
+        if (resultIsNotMember) {
+            return false; 
         }
 
-        // 여기까지 오면 메일 보내는 메서드를 만든다.
-        boolean result7 = sendRegistEmail(newMember.getEmail(), newMember.getUserId());
+        boolean resultGreetingMail = sendRegistEmail(newMember.getEmail(), newMember.getUserId());
 
-        return result7; // 계정생성 성공할 경우
+        return resultGreetingMail; 
     }
 
     private boolean sendRegistEmail(String email, String userId) throws MessagingException, UnsupportedEncodingException {
-        /*기본적인 원리는 다음과 같다.
-         * 1. 보내고 싶은 이메일 주소를 가져온다.
-         * 2. */
         int result = 0;
-        log.info("");
-        MailDTO mailDTO = mapper.searchMailForm(1); // 가입인사 form 가져오기.
-        log.info("mailDTO++++++++++++++++++++++++++++" + mailDTO.toString());
+        final int greetingMailFormCode = 1;
+        MailDTO mailDTO = mapper.searchMailForm(greetingMailFormCode); 
 
         String emailContent = mailDTO.getContent()
                 .replace("{memberId}", userId);
@@ -139,7 +119,6 @@ public class AuthServiceImpl implements AuthService {
         javaMailSender.send(mimeMailMessage);
 
         result++;
-        log.info(" orderState result =================================== ", result);
         if (!(result > 0)) {
             return false;
         }
@@ -156,7 +135,6 @@ public class AuthServiceImpl implements AuthService {
         int userCode = user.getUserCode();
         boolean isUpdateConnectionDate = mapper.updateConnectionDate(userCode) == 1;
         if (!isUpdateConnectionDate) {
-            // 데이터가 못들어간 경우
             throw new InternalAuthenticationServiceException("현재 아이디의 connection_date의 값을 넣지 못했습니다.");
         }
         UserDetails login = new LoginDetails(user);
@@ -177,9 +155,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public boolean sendCheckEmailMail(String email, String randomCode) throws MessagingException, UnsupportedEncodingException {
         int result = 0;
-        log.info("");
         MailDTO mailDTO = mapper.searchMailForm(9); // 인증번호 발송 메일
-        log.info("mailDTO++++++++++++++++++++++++++++" + mailDTO.toString());
 
         String emailContent = mailDTO.getContent()
                 .replace("{randomCode}", randomCode);
@@ -198,7 +174,6 @@ public class AuthServiceImpl implements AuthService {
         javaMailSender.send(mimeMailMessage);
 
         result++;
-        log.info(" orderState result =================================== ", result);
         if (!(result > 0)) {
             return false;
         }
@@ -208,9 +183,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public boolean sendPasswordMail(String email, String password) throws MessagingException, UnsupportedEncodingException {
         int result = 0;
-        log.info("");
         MailDTO mailDTO = mapper.searchMailForm(3); // 인증번호 발송 메일
-        log.info("mailDTO++++++++++++++++++++++++++++" + mailDTO.toString());
 
         String emailContent = mailDTO.getContent()
                 .replace("{password}", password);
@@ -229,7 +202,6 @@ public class AuthServiceImpl implements AuthService {
         javaMailSender.send(mimeMailMessage);
 
         result++;
-        log.info(" orderState result =================================== ", result);
         if (!(result > 0)) {
             return false;
         }

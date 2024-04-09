@@ -33,10 +33,8 @@ import java.util.Map;
 import java.util.UUID;
 
 @Controller
-@Slf4j
 @RequestMapping("/autoMailModify")
 public class AutoMailController {
-
     private final AdminAutoMailServiceImpl autoMail;
     private final ObjectMapper objectMapper;
 
@@ -46,37 +44,24 @@ public class AutoMailController {
     }
 
     @GetMapping(value = "/emailDetail")
-    public String emailDetail(@RequestParam int mailCode, Model model){
-        log.info("");
-        log.info("");
-        log.info("selectProductDetail~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~시작");
-        log.info("~~~~~~~~~~~~~~~~orderCode : {}", mailCode);
-
+    public String emailDetail(@RequestParam int mailCode, Model model) {
         AdminAutoMailDTO mailDTO = autoMail.emailDetail(mailCode);
-        log.info("~~~~~~~~~~~~~~~~emailDetail : {}", mailDTO);
-
 
         model.addAttribute("mailDTO", mailDTO);
         return "admin/content/Service/emailDetail";
     }
 
     @GetMapping(value = "/searchEmailHistory")
-    public ModelAndView searchEmailHistory(@ModelAttribute AdminAutoMailForm form){
-        log.info("searchEmailHistory============= start");
-        log.info(form.toString());
-
+    public ModelAndView searchEmailHistory(@ModelAttribute AdminAutoMailForm form) {
         List<AdminAutoMailDTO> mailDTOList = autoMail.searchEmailHistory(form);
-        log.info("searchEmailHistory============= : " + mailDTOList);
 
         int totalResult = mailDTOList.size();
-        log.info("=============================totalResult : " + totalResult);
 
         ModelAndView mv = new ModelAndView();
         mv.addObject("mailList", mailDTOList);
         mv.setViewName("admin/content/Service/emailHistory");
 
         return mv;
-
     }
 
     @Value("img")
@@ -92,46 +77,23 @@ public class AutoMailController {
                            @RequestParam String chooseMember, RedirectAttributes rttr) throws JsonProcessingException, MessagingException, UnsupportedEncodingException {
 
         if (uploadedImages != null && !uploadedImages.isEmpty()) {
-        log.info("메일보내기 시작~~~~~~~~~~~~~");
-        log.info("uploadedImages~~~~~~~~~~~~~" + uploadedImages);
-        log.info("title~~~~~~~~~~~~~" +title);
-        log.info("summernote~~~~~~~~~~~~~" + summernote);
-        log.info("chooseMember~~~~~~~~~~~~~" + chooseMember);
-        List<UploadedImageDTO> uploadedImageList = objectMapper.readValue(uploadedImages, new TypeReference<List<UploadedImageDTO>>() {
-        });
-        log.info("이제 JSON으로 고친 값...");
-        for (UploadedImageDTO image : uploadedImageList) {
-            log.info("Convert Path: " + image.getConvertPath());
-            log.info("Save Path: " + image.getSavePath());
-            log.info("Source Name: " + image.getSourceName());
-            log.info("Convert Name: " + image.getConvertName());
-        }
+            List<UploadedImageDTO> uploadedImageList = objectMapper.readValue(uploadedImages, new TypeReference<List<UploadedImageDTO>>() {
+            });
 
-        boolean isSucces = autoMail.sendMail(uploadedImageList, title, summernote, chooseMember);
+            boolean isSucces = autoMail.sendMail(uploadedImageList, title, summernote, chooseMember);
 
-        return "redirect:/Service/email";
-        }else{
-            log.info("메일보내기 시작~~~~~~~~~~~~~");
-            log.info("title~~~~~~~~~~~~~" +title);
-            log.info("summernote~~~~~~~~~~~~~" + summernote);
-            log.info("chooseMember~~~~~~~~~~~~~" + chooseMember);
-
-
+            return "redirect:/Service/email";
+        } else {
             boolean isSucces = autoMail.sendMailOnlyString(title, summernote, chooseMember);
 
             return "redirect:/Service/email";
         }
     }
 
-
     @PostMapping(value = "/uploadSummernoteImageFile", produces = "application/json")
     @ResponseBody
     public Map<String, String> uploadSummernoteImageFile(@RequestParam("file") MultipartFile multipartFile) {
-        log.info("");
-        log.info("");
-        log.info("[BoardWriteController] uploadSummernoteImageFile =====... start");
         String rootLocation = ROOT_LOCATION + IMAGE_DIR;
-        // C:/hedgehog/img
 
         String fileUploadDirectory = rootLocation + "/upload/original";
         String thumnailDirectory = rootLocation + "/upload/thumbnail";
@@ -139,26 +101,13 @@ public class AutoMailController {
         File directory = new File(fileUploadDirectory);
         File directory2 = new File(thumnailDirectory);
 
-        log.info("~~~~~~~~~~~~~~~~~~~~~fileUploadDirectory" + fileUploadDirectory);
-        log.info("****************************thumnailDirectory" + thumnailDirectory);
-
-        if (!directory.exists() || !directory2.exists()) {
-            log.info("*************************** 폴더 생성" + directory.mkdirs());
-            log.info("*************************** 폴더 생성2" + directory2.mkdirs());
-        }
-
         Map<String, String> returnMap = new HashMap<>();
         String originalFileName = multipartFile.getOriginalFilename(); // source_name에 저장됨
         String ext = originalFileName.substring(originalFileName.lastIndexOf(".")); // source_name 에서 확장자를 가져옴
         String convertName = UUID.randomUUID().toString().replace("-", "") + ext; // convert_name. 새롭게 만든 파일이름
-        log.info("원본 파일 명... 올릴당시... source_name : " + originalFileName);
-        log.info("변환 파일 명... convert_name : " + convertName);
         File originalFile = new File(fileUploadDirectory + "/" + convertName);
-        log.info("드라이브에 저장된 경로... : " + fileUploadDirectory + "/" + convertName);
 
         String convertPath = "/thumbnail_" + convertName;
-        log.info("변환파일 경로(실제로 사용하는 사진) : " + convertPath);
-        log.info("변환파일 저장 경로 : " + thumnailDirectory + convertPath);
         File convertFile = new File(thumnailDirectory + convertPath);
 
         try {
@@ -172,8 +121,6 @@ public class AutoMailController {
 
             int originalWidth = (int) ImageIO.read(originalFile).getWidth();
             int originalHeight = (int) ImageIO.read(originalFile).getHeight();
-            log.info("원본 사진의 너비... : " + originalWidth);
-            log.info("원본 사진의 높이... : " + originalHeight);
 
             if (originalWidth <= maxWidth && originalHeight <= maxHeight) {
                 thumbnailBuilder.size(originalWidth, originalHeight);
@@ -196,75 +143,34 @@ public class AutoMailController {
             e.printStackTrace();
         }
 
-        log.info("[BoardWriteController] uploadSummernoteImageFile ======== return \n {}", returnMap);
-        log.info("[BoardWriteController] uploadSummernoteImageFile ======== end");
-
         return returnMap;
     }
 
-
-
     @GetMapping("/previewMail")
-    public String previewMail(@RequestParam int mailCode, Model model){
-        log.info("");
-        log.info("");
-        log.info("mailModify~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~시작");
-        log.info("~~~~~~~~~~~~~~~~mailCode : {}", mailCode);
-
+    public String previewMail(@RequestParam int mailCode, Model model) {
         AdminAutoMailDTO mailDTO = autoMail.previewMail(mailCode);
 
         model.addAttribute(mailDTO);
-
 
         return "admin/content/Service/mailViewport";
-
     }
 
-    /**
-     * 메일 수정하는 페이지에 기존에 DB에 있는 내용 불러오는 메소드     *
-     * @param mailCode
-     * @param model
-     * @return
-     */
     @GetMapping("/modifyMailPage")
-    public String modifyMailPage(@RequestParam int mailCode, Model model){
-        log.info("");
-        log.info("");
-        log.info("mailModify~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~시작");
-        log.info("~~~~~~~~~~~~~~~~mailCode : {}", mailCode);
-
+    public String modifyMailPage(@RequestParam int mailCode, Model model) {
         AdminAutoMailDTO mailDTO = autoMail.previewMail(mailCode);
 
         model.addAttribute(mailDTO);
 
-
         return "admin/content/Service/mailModify";
-
     }
 
-    /**
-     * 메일 수정하는 메소드
-     * @param mailDTO
-     * @return
-     * @throws AdminProductAddException
-     */
     @PostMapping("/modifyMail")
     public String modifyMail(@ModelAttribute AdminAutoMailDTO mailDTO,
                              RedirectAttributes rttr) throws AdminProductAddException {
-
-        log.info("");
-        log.info("");
-        log.info("mailModify~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~시작");
-        log.info("~~~~~~~~~~~~~~~~mailDTO : {}", mailDTO);
-
         autoMail.modifyMail(mailDTO);
 
         rttr.addFlashAttribute("message", "양식 변경에 성공하였습니다.");
 
-
-
         return "redirect:/autoMailModify/modifyMailPage?mailCode=" + mailDTO.getFormCode();
-
     }
-
 }

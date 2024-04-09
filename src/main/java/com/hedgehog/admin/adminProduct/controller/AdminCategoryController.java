@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.util.List;
 
 @Controller
-@Slf4j
 @RequestMapping("/category")
 public class AdminCategoryController {
     private final AdminProductServiceImpl adminProductServiceImpl;
@@ -26,41 +25,22 @@ public class AdminCategoryController {
         this.adminProductServiceImpl = adminProductServiceImpl;
     }
 
-    /**
-     * 카테고리 상태, 이름 변경 메소드
-     * @param categoryForm
-     * @return
-     * @throws AdminProductAddException
-     */
     @PostMapping(value = "categoryModify")
-    public String categoryModify(@ModelAttribute AdminCategoryForm categoryForm, RedirectAttributes rttr) throws AdminProductAddException {
-
-        log.info(String.valueOf(categoryForm));
-
+    public String categoryModify(@ModelAttribute AdminCategoryForm categoryForm,
+                                 RedirectAttributes rttr) throws AdminProductAddException {
         adminProductServiceImpl.categoryModify(categoryForm);
         rttr.addFlashAttribute("success", true);
 
         return "redirect:/category/categoryAdd";
-
-
     }
-
 
     @GetMapping(value = "/categoryDetail", produces = "application/json; charset=UTF-8")
     @ResponseBody
     public List<AdminProductDTO> handleCategoryClick(@RequestParam("categoryName") String categoryName) {
-
-        log.info("categoryDetail ==================== start" + categoryName);
         categoryName.trim();
-
-
-        log.info("categoryDetail ==================== " + categoryName);
-
-
 
         List<AdminProductDTO> productDTO = adminProductServiceImpl.categoryDetail(categoryName);
 
-        log.info("categoryDetail ==================== " + productDTO);
         int totalCount = productDTO.size();
         int stateY = 0;
         int stateN = 0;
@@ -76,41 +56,23 @@ public class AdminCategoryController {
 
             }
         }
-        log.info("categoryDetail ==================== totalCount" + totalCount);
-        log.info("categoryDetail ==================== stateY" + stateY);
-        log.info("categoryDetail ==================== stateN" + stateN);
-
         productDTO.get(0).setOrderableStatus(productDTO.get(0).getCategory().getState());
-        log.info("categoryDetail ==================== " + productDTO);
         return productDTO;
     }
 
-
-    /**
-     * 상분 분류 페이지 연결 메소드
-     *
-     * @return
-     */
     @GetMapping(value = "/categoryAdd")
     public ModelAndView categoryadd(@ModelAttribute AdminCategoryDTO category,
                                     ModelAndView mv) {
-        log.info("categoryadd ==================== start");
-        log.info(category.toString());
-
         List<AdminCategoryDTO> categoryList = adminProductServiceImpl.categoryList(category);
-        log.info("=================================category" + categoryList);
 
         int totalResult = categoryList.size();
-
 
         mv.addObject("categoryList", categoryList);
         mv.addObject("totalResult", totalResult);
         mv.setViewName("admin/content/product/categoryAdd");
 
-
         return mv;
     }
-
 
     @GetMapping("/categoryPage")
     public String productAddPage() {

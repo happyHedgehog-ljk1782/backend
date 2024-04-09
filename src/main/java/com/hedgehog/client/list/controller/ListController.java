@@ -1,4 +1,5 @@
 package com.hedgehog.client.list.controller;
+
 import com.hedgehog.client.list.dto.ProductListDTO;
 import com.hedgehog.client.list.service.ProductListService;
 import com.hedgehog.common.paging.Pagenation;
@@ -18,7 +19,6 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/list")
-@Slf4j
 public class ListController {
 
     @Value("${image.image-dir}")
@@ -30,32 +30,18 @@ public class ListController {
     private final ProductListService productListService;
 
     public ListController(ProductListService productListService) {
-
         this.productListService = productListService;
-
     }
 
     @GetMapping("/productList/{type}")
-    public ModelAndView selectProductList(ModelAndView mv
-                                        ,@PathVariable String type
-                                        ,@RequestParam(value = "currentPage", defaultValue = "1") int pageNo) {
-
-        log.info("[ListController] ========================================================= start");
-
-        /* 카테고리별 총 상품갯수 */
-
+    public ModelAndView selectProductList(ModelAndView mv,
+                                          @PathVariable String type,
+                                          @RequestParam(value = "currentPage", defaultValue = "1") int pageNo) {
         int totalCount = productListService.selectTotalPageCount(type);
 
-        log.info("컨트롤러에서 전달받은 게시글총갯수==================== {}" , totalCount);
-
-
-        /* 게시물 조회 */
         int limit = 12;
-
         int buttonAmount = 5;
-
         SelectCriteria selectCriteria = null;
-
         selectCriteria = Pagenation.getSelectCriteria(pageNo, totalCount, limit, buttonAmount);
 
         Map<String, Object> map = new HashMap<>();
@@ -63,29 +49,14 @@ public class ListController {
         map.put("type", type);
         List<ProductListDTO> productList = productListService.selectProductList(map);  /* 상품리스트 */
 
-
-
-        log.info("selectCriteria===== : " + selectCriteria);
-        log.info("type=========== {}", type);
-        log.info("productList================================== : {} : " , productList);
-
-
         mv.addObject("productList", productList);
-        mv.addObject("map",map);
+        mv.addObject("map", map);
         mv.addObject("selectCriteria", selectCriteria);
 
-
-        System.out.println("mv========================="+mv);
-        System.out.println("재확인===="+productList.get(0).getAdminProductDTO().getProductName());
-
         int discount = (int) productList.get(0).getDiscount();
-
-
-        System.out.println("할인금액=="+productList.get(0).getDiscount());
 
         mv.setViewName("client/content/list/productList");
 
         return mv;
-
     }
 }

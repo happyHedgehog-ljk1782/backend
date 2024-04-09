@@ -28,32 +28,20 @@ import java.util.Map;
 @Controller
 @RequestMapping("/adminManagement")
 @AllArgsConstructor
-@Slf4j
 public class AdminManagementController {
     private final AdminManagementService adminManagementService;
     private final PasswordEncoder passwordEncoder;
 
-    /**
-     * @return 관리자 관리 페이지 연결 메소드
-     */
     @GetMapping("/adminManagement")
     public String adminManagement(Model model,
                                   @RequestParam(value = "currentPage", defaultValue = "1") int pageNo) {
         int totalCount = adminManagementService.selectTotalCountAdminInfo();
-        log.info("관리자의 총 인원수 (selectTotalCountAdminInfo) : " + totalCount);
 
-        /*한 페이지에 5개*/
         int limit = 5;
-        /*한번에 페이징 버튼 5개*/
         int buttonAmount = 5;
         AdminManagementSelectCriteria adminManagementSelectCriteria = AdminManagementPagenation.getAdminManagementSelectCriteria(pageNo,totalCount, limit,buttonAmount);
-        log.info("");
-        log.info("");
-        log.info("페이징 처리를 담당할 DTO 출력 (AdminManagementPagenation.getAdminManagementSelectCriteria) : " + adminManagementSelectCriteria);
-
 
         List<AdminDTO> adminList = adminManagementService.getAdminList(adminManagementSelectCriteria);
-        log.info("adminList... 페이징 처리 완료한 : "+adminList);
         model.addAttribute("adminList", adminList);
         model.addAttribute("adminManagementSelectCriteria",adminManagementSelectCriteria); // 페이징 처리를 위한 값
         return "admin/content/adminManagement/adminManagement";
@@ -88,20 +76,6 @@ public class AdminManagementController {
         ChangePwdForm newPwdForm = new ChangePwdForm(pwdForm.getUserCode(), passwordEncoder.encode(pwdForm.getAdminUpdatePass()));
 
         boolean success = false;
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        if (authentication != null) {
-//            Object principal = authentication.getPrincipal();
-//            if (principal instanceof LoginDetails) {
-//                LoginDetails loginDetails = (LoginDetails) principal;
-//                int userCode = loginDetails.getLoginUserDTO().getUserCode();
-//                String classify = loginDetails.getLoginUserDTO().getClassify();
-//                if (classify.equals("SUPER_ADMIN")) {
-//                    success = adminManagementService.updatePwd(newPwdForm);
-//                } else if (classify.equals("ADMIN") && userCode == newPwdForm.getUserCode()) {
-//                    success = adminManagementService.updatePwd(newPwdForm);
-//                }
-//            }
-//        }
         success = adminManagementService.updatePwd(newPwdForm);
         if (success) {
             return "redirect:/adminManagement/adminManagement";

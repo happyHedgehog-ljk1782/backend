@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@Slf4j
 public class ProductServiceImpl implements ProductService {
 
     private final ProductInfoMapper mapper;

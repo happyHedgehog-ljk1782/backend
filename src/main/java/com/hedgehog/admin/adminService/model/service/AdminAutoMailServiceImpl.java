@@ -22,9 +22,7 @@ import java.util.stream.Collectors;
 
 
 @Service
-@Slf4j
 public class AdminAutoMailServiceImpl implements AdminAutoMailService{
-
     private final AdminAutoMapper mapper;
     private final JavaMailSender javaMailSender;
     private static final String FROM_ADDRESS = "oneinfurniture0@gmail.com";
@@ -37,7 +35,6 @@ public class AdminAutoMailServiceImpl implements AdminAutoMailService{
     @Override
     public AdminAutoMailDTO previewMail(int mailCode) {
         AdminAutoMailDTO adminAutoMailDTO = mapper.previewMail(mailCode);
-        log.info(String.valueOf(adminAutoMailDTO));
 
         return adminAutoMailDTO;
     }
@@ -46,45 +43,28 @@ public class AdminAutoMailServiceImpl implements AdminAutoMailService{
     @Transactional
     public void modifyMail(AdminAutoMailDTO mailDTO) throws AdminProductAddException {
         int result = mapper.modifyMail(mailDTO);
-
         if(!(result > 0)){
             throw new AdminProductAddException("메일 수정에 실패하였습니다.");
         }
-
     }
 
     @Override
     @Transactional
     public boolean sendMail(List<UploadedImageDTO> uploadedImageList, String title, String summernote, String chooseMember) throws MessagingException, UnsupportedEncodingException {
-
-//        마케팅 수신 동의한 메일주소랑 유저코드 가져오기
         String[] searchEmailList = mapper.searchEmailList();
-        log.info(searchEmailList.toString());
-//        tbl_mail_history에 먼저 insert하고 mail_code를 가져온다
         AdminAutoMailDTO adminAutoMailDTO = new AdminAutoMailDTO();
         adminAutoMailDTO.setTitle(title);
         adminAutoMailDTO.setContent(summernote);
 
-
-
         int result = mapper.insertMailHistory(adminAutoMailDTO);
 
-        log.info(adminAutoMailDTO.toString());
         int mailCode = adminAutoMailDTO.getMail_code();
 
-//        이미지 테이블에 업로드
-//        adminAutoMailDTO.setEventCode();
-        log.info("이미지 테이블에 업로드 시작~~~~~~~~~~~~~~~~~~ uploadedImageList" + uploadedImageList);
-
         int result2 = mapper.imgInsert(uploadedImageList, mailCode);
-        log.info("이미지 테이블에 끗~~~~~~~~~~~~~~~~~~");
 
         if(result2 != 1){
             return false;
         }
-//        메일보내기
-
-        log.info("메일 보내기 시작~~~~~~~~~~~~~~~~~~");
         MimeMessage mimeMailMessage = javaMailSender.createMimeMessage();
 
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMailMessage, true, "UTF-8");
@@ -95,60 +75,36 @@ public class AdminAutoMailServiceImpl implements AdminAutoMailService{
         mimeMessageHelper.setTo(searchEmailList); //받는 메일 주소 지정
         mimeMessageHelper.setBcc(searchEmailList);
 
-
         javaMailSender.send(mimeMailMessage);
-        log.info("메일 보내기 끗~~~~~~~~~~~~~~~~~~");
-
 
         return true;
     }
 
     @Override
     public List<AdminAutoMailDTO> searchEmailHistory(AdminAutoMailForm form) {
-        log.info("searchEmailHistory 시작~~~~~~~~~~~~~~~~~~");
-
         List<AdminAutoMailDTO> mailList = mapper.searchEmailHistory(form);
-        log.info("searchEmailHistory 시작~~~~~~~~~~~~~~~~~~" + mailList);
-
 
         return mailList;
     }
 
     @Override
     public AdminAutoMailDTO emailDetail(int mailCode) {
-        log.info("emailDetail 시작~~~~~~~~~~~~~~~~~~");
-
         AdminAutoMailDTO mailList = mapper.emailDetail(mailCode);
-        log.info("emailDetail 시작~~~~~~~~~~~~~~~~~~" + mailList);
-
 
         return mailList;
     }
 
     @Override
     public boolean sendMailOnlyString(String title, String summernote, String chooseMember) throws MessagingException, UnsupportedEncodingException {
-
-//        마케팅 수신 동의한 메일주소랑 유저코드 가져오기
         String[] searchEmailList = mapper.searchEmailList();
-        log.info(searchEmailList.toString());
-//        tbl_mail_history에 먼저 insert하고 mail_code를 가져온다
+
         AdminAutoMailDTO adminAutoMailDTO = new AdminAutoMailDTO();
         adminAutoMailDTO.setTitle(title);
         adminAutoMailDTO.setContent(summernote);
 
-
-
         int result = mapper.insertMailHistory(adminAutoMailDTO);
-
-        log.info(adminAutoMailDTO.toString());
         int mailCode = adminAutoMailDTO.getMail_code();
 
-//        이미지 테이블에 업로드
-//        adminAutoMailDTO.setEventCode();
-
-//        메일보내기
-
-        log.info("메일 보내기 시작~~~~~~~~~~~~~~~~~~");
         MimeMessage mimeMailMessage = javaMailSender.createMimeMessage();
 
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMailMessage, true, "UTF-8");
@@ -159,10 +115,7 @@ public class AdminAutoMailServiceImpl implements AdminAutoMailService{
         mimeMessageHelper.setTo(searchEmailList); //받는 메일 주소 지정
         mimeMessageHelper.setBcc(searchEmailList);
 
-
         javaMailSender.send(mimeMailMessage);
-        log.info("메일 보내기 끗~~~~~~~~~~~~~~~~~~");
-
 
         return true;
     }

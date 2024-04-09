@@ -28,7 +28,6 @@ import java.util.Random;
 
 @Controller
 @RequestMapping("/myshop")
-@Slf4j
 public class MyshopController {
     private final MyshopService myshopService;
     private final AuthServiceImpl authService;
@@ -55,7 +54,6 @@ public class MyshopController {
     @GetMapping("info")
     public ModelAndView memberInfo(@AuthenticationPrincipal LoginDetails loginDetails, ModelAndView mv) {
         LoginUserDTO loginUserDTO = loginDetails.getLoginUserDTO();
-        // userCode를 가져온 다음에 member를 읽어온다.
         MemberDTO member = myshopService.getMemberInfo(loginUserDTO.getUserCode());
         mv.addObject("name", loginUserDTO.getName());
         mv.addObject("birthday", member.getBirthday());
@@ -71,7 +69,6 @@ public class MyshopController {
     @GetMapping("/modifyInfo")
     public ModelAndView modifyInfoPage(@AuthenticationPrincipal LoginDetails loginDetails, ModelAndView mv) {
         LoginUserDTO loginUserDTO = loginDetails.getLoginUserDTO();
-        // userCode를 가져온 다음에 member를 읽어온다.
         MemberDTO member = myshopService.getMemberInfo(loginUserDTO.getUserCode());
         mv.addObject("name", loginUserDTO.getName());
         mv.addObject("birthday", member.getBirthday());
@@ -88,8 +85,6 @@ public class MyshopController {
     @ResponseBody
     public Map<String, Object> checkEmail(@AuthenticationPrincipal LoginDetails loginDetails,
                                           @RequestParam String email) throws UserEmailNotFoundException, UserCertifiedException, MessagingException, UnsupportedEncodingException {
-        /*여기서는 여러가지 경우의 수를 생각할 수 있겠다.
-         * 인증한 이메일과 원래 가지고 있는 이메일이 동일한가.*/
         Map<String, Object> response = new HashMap<>();
         LoginUserDTO loginUserDTO = loginDetails.getLoginUserDTO();
         int userCode = loginUserDTO.getUserCode();
@@ -97,11 +92,8 @@ public class MyshopController {
         System.out.println(userEmail);
         System.out.println(email);
         if (userEmail.equals(email)) {
-            // 같으면 굳이 인증할 필요가 없다.
             response.put("result", "sameEmail");
         } else {
-            // 만약에 입력한 이메일과 원래 계정 정보가 다르면. 새로 인증을 해야 한다.
-            // 이때 중복된 이메일이면 절대로 안된다.
             boolean isEmailExist = authService.selectMemberByEmail(email); // 이메일이 있는지.
             if (!isEmailExist) {
                 int min = 100000;
@@ -146,7 +138,7 @@ public class MyshopController {
                 modifyForm.getPhone(),
                 modifyForm.getBirthday(),
                 modifyForm.getGender(),
-                modifyForm.getHiddenCertifiedKey(), // 0인 경우는 인증이 이미 완료된거라 인증번호는 update 하면 안된다.
+                modifyForm.getHiddenCertifiedKey(),
                 modifyForm.getEmailService());
 
         boolean modifySuccess = myshopService.modifyMember(loginDetails.getLoginUserDTO().getUserCode(), member);

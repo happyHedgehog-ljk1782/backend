@@ -22,7 +22,6 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 
 @Component
-@Slf4j
 @AllArgsConstructor
 public class AuthSuccessHandler implements AuthenticationSuccessHandler {
     private final WithdrawService withdrawService;
@@ -33,13 +32,11 @@ public class AuthSuccessHandler implements AuthenticationSuccessHandler {
 
         String userId = authentication.getName();
         int withdrawStatus = withdrawService.checkWithdrawStatus(userId);
-        log.info("withdrawStatus: " + withdrawStatus);
         if (withdrawStatus == -1) {
             // 탈퇴한 계정이라고 throw
             throw new UserWithdrawException("이미 탈퇴한 계정");
         }
 
-        log.info("login SuccessHandler가 오는게 맞냐 여기.");
         String saveId = request.getParameter("saveId");
         if ("on".equals(saveId)) {
             Cookie userIdCookie = new Cookie("userId", userId);

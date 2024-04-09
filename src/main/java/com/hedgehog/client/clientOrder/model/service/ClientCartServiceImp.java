@@ -13,9 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@Slf4j
 public class ClientCartServiceImp implements ClientCartService {
-
     private final CartOrderMapper cartOrderMapper;
 
     @Autowired
@@ -33,8 +31,6 @@ public class ClientCartServiceImp implements ClientCartService {
         return cartOrderMapper.getOrderPoint(userCode);
     }
 
-
-
     @Override
     public OrderInfoDTO getOrderInfo(int userCode) {
         return cartOrderMapper.getOrderInfo(userCode);
@@ -49,7 +45,4 @@ public class ClientCartServiceImp implements ClientCartService {
     public ClientCartOrderForm getUserOrder(int userCode) {
         return cartOrderMapper.getUserOrder(userCode);
     }
-
-
-
 }

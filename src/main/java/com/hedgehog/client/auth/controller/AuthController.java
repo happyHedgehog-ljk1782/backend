@@ -30,7 +30,6 @@ import java.util.Random;
 
 @Controller
 @RequestMapping("/auth")
-@Slf4j // 롬복 기능. 로거 자동 생성
 @AllArgsConstructor
 public class AuthController {
     private final PasswordEncoder passwordEncoder;
@@ -122,8 +121,6 @@ public class AuthController {
             int certifiedCode = registService.selectCertifiedNumber(randomCode);
             System.out.println(certifiedCode);
 
-            // 여기서 email과 randomCode 를 이용하여 메일을 전송한다.
-
             boolean isEmailSend = registService.sendCheckEmailMail(email, randomCode);
             if (!isEmailSend) {
                 response.put("result", "sendMiss");
@@ -157,7 +154,6 @@ public class AuthController {
     public Map<String, Object> searchIdCheckEmail(@RequestParam String email) throws MessagingException, UnsupportedEncodingException {
         Map<String, Object> response = new HashMap<>();
         Integer certificationCode = searchUserInfoService.selectMemberByEmail(email); // Member 부분에서
-        log.info("이메일이 존재한다.(있으면 숫자, 없으면 null) : " + certificationCode);
         if (certificationCode != null) {
             response.put("certifiedCode", certificationCode);
         }
@@ -169,8 +165,6 @@ public class AuthController {
     @ResponseBody
     public Map<String, Object> searchIdCheckEmail(@RequestParam int inputCertifiedCode,
                                                   @RequestParam String certifiedKey) {
-        /*inputCertifiedCode 는 내가 직접 입력한 인증번호
-         * certifiedKey 는 서버에 저장되어 있는 PK*/
         Map<String, Object> response = new HashMap<>();
         boolean isPass = searchUserInfoService.certifyEmail(inputCertifiedCode, certifiedKey); // Member 부분에서
 
@@ -183,13 +177,6 @@ public class AuthController {
                            @RequestParam int emailAuthenticationNumber,
                            @RequestParam int hiddenCertifiedKey,
                            RedirectAttributes redirectAttributes) {
-        /*
-         * 세가지 정보를 다시 받아온다.
-         * 이메일
-         * 인증번호(내가 입력한)
-         * 인증번호 PK(계정에 부여된)
-         * */
-
         String userId = searchUserInfoService.findUserId(email, emailAuthenticationNumber, hiddenCertifiedKey);
 
         if (userId != null) {
@@ -211,9 +198,7 @@ public class AuthController {
     public Map<String, Object> searchPasswordCheckEmail(@RequestParam String userId,
                                                         @RequestParam String email) throws MessagingException, UnsupportedEncodingException {
         Map<String, Object> response = new HashMap<>();
-        log.info("여기까진 접근했나?");
         Integer certificationCode = searchUserInfoService.selectMemberByUserIdAndEmail(userId, email); // Member 부분에서
-        log.info("멤버가 존재한다.(있으면 숫자, 없으면 null) : " + certificationCode);
         if (certificationCode != null) {
             response.put("certifiedCode", certificationCode);
         } else if (certificationCode == -1) {
@@ -228,8 +213,6 @@ public class AuthController {
     @ResponseBody
     public Map<String, Object> searchPasswordCheckEmail(@RequestParam int inputCertifiedCode,
                                                         @RequestParam String certifiedKey) {
-        /*inputCertifiedCode 는 내가 직접 입력한 인증번호
-         * certifiedKey 는 서버에 저장되어 있는 PK*/
         Map<String, Object> response = new HashMap<>();
         boolean isPass = searchUserInfoService.certifyEmail(inputCertifiedCode, certifiedKey); // Member 부분에서
 
@@ -243,14 +226,6 @@ public class AuthController {
                            @RequestParam int emailAuthenticationNumber,
                            @RequestParam int hiddenCertifiedKey,
                            RedirectAttributes redirectAttributes) throws MessagingException, UnsupportedEncodingException {
-        /*
-         * 네가지 정보를 다시 받아온다.
-         * 아이디
-         * 이메일
-         * 인증번호(내가 입력한)
-         * 인증번호 PK(계정에 부여된)
-         * */
-
         String newUserPassword = searchUserInfoService.insertUserPassword(userId, email, emailAuthenticationNumber, hiddenCertifiedKey);
 
         if (newUserPassword != null) {
@@ -275,7 +250,7 @@ public class AuthController {
                     "탈퇴 유예 기간 중에 접속했습니다.\n탈퇴신청을 해제합니다.");
             return "/client/content/main/main";
         }
-        SessionLogout.invalidSession(req,res);
+        SessionLogout.invalidSession(req, res);
         model.addAttribute("message", message);
         return "/client/content/auth/fail";
     }

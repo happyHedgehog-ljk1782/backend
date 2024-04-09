@@ -26,7 +26,6 @@ import static java.lang.String.valueOf;
 
 @Controller
 @RequestMapping("/basket")
-@Slf4j
 public class BasketController {
 
 

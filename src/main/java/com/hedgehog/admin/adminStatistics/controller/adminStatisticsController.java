@@ -7,10 +7,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/statistics")
-@Slf4j
 public class adminStatisticsController {
     @GetMapping("/statistics")
-    public String statistics(){
+    public String statistics() {
         return "admin/content/statistics/statistics";
     }
 }

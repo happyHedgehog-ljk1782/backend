@@ -12,14 +12,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@Slf4j
 public class AdminFAQServiceImpl implements AdminFAQService {
-
     private final AdminFAQMapper mapper;
 
-    public AdminFAQServiceImpl(AdminFAQMapper mapper) {this.mapper = mapper;}
-@Override
-    public  List<AdminFAQDTO> searchFAQ(AdminFAQForm form) {
+    public AdminFAQServiceImpl(AdminFAQMapper mapper) {
+        this.mapper = mapper;
+    }
+
+    @Override
+    public List<AdminFAQDTO> searchFAQ(AdminFAQForm form) {
         List<AdminFAQDTO> FAQList = mapper.searchFAQ(form);
         return FAQList;
     }
@@ -28,50 +29,47 @@ public class AdminFAQServiceImpl implements AdminFAQService {
         List<AdminFAQDTO> noticeList = mapper.searchNotice(form);
         return noticeList;
     }
-@Override
-@Transactional
+
+    @Override
+    @Transactional
     public void FAQStateUpdate(AdminFAQDTO faqdto) throws BoardException {
-    log.info("");
+        int result = mapper.FAQStateUpdate(faqdto);
 
-    int result = mapper.FAQStateUpdate(faqdto);
-    log.info("===========FAQStateUpdate Result {}", result);
-
-    if (!(result > 0)){
-        throw new BoardException("상태 변경에 실패하셨습니다.");
-    }
-    }
-@Override
-@Transactional
-    public void noticeStateUpdate(AdminFAQDTO faqdto) throws BoardException {
-        log.info("");
-
-        int result = mapper.noticeStateUpdate(faqdto);
-        log.info("===========noticeStateUpdate Result {}", result);
-
-        if (!(result > 0)){
+        if (!(result > 0)) {
             throw new BoardException("상태 변경에 실패하셨습니다.");
         }
     }
-@Override
-@Transactional
+
+    @Override
+    @Transactional
+    public void noticeStateUpdate(AdminFAQDTO faqdto) throws BoardException {
+        int result = mapper.noticeStateUpdate(faqdto);
+
+        if (!(result > 0)) {
+            throw new BoardException("상태 변경에 실패하셨습니다.");
+        }
+    }
+
+    @Override
+    @Transactional
     public void noticeRegister(AdminFAQDTO adminFAQDTO) throws BoardException {
         int result = mapper.noticeRegister(adminFAQDTO);
-    if (!(result > 0)){
-        throw new BoardException("상태 변경에 실패하셨습니다.");
+        if (!(result > 0)) {
+            throw new BoardException("상태 변경에 실패하셨습니다.");
+        }
     }
-    }
-@Override
-@Transactional
+
+    @Override
+    @Transactional
     public void FAQRegister(AdminFAQDTO adminFAQDTO) throws BoardException {
         int result = mapper.FAQRegister(adminFAQDTO);
-    if (!(result > 0)){
-        throw new BoardException("상태 변경에 실패하셨습니다.");
-    }
+        if (!(result > 0)) {
+            throw new BoardException("상태 변경에 실패하셨습니다.");
+        }
     }
 
     @Override
     public AdminFAQDTO FAQModifyPage(int postCode) {
-
         AdminFAQDTO adminFAQDTO = mapper.FAQModifyPage(postCode);
         return adminFAQDTO;
     }
@@ -81,6 +79,4 @@ public class AdminFAQServiceImpl implements AdminFAQService {
     public void FAQModify(AdminFAQDTO adminFAQDTO) {
         int result = mapper.FAQModify(adminFAQDTO);
     }
-
-
 }

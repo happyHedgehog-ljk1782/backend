@@ -16,38 +16,23 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/adminmain")
-@Slf4j
 public class adminMainController {
-
     private final AdminDailyVisitorsServiceImpl adminDailyVisitorsServiceImpl;
-
 
     public adminMainController(AdminDailyVisitorsServiceImpl adminDailyVisitorsServiceImpl) {
         this.adminDailyVisitorsServiceImpl = adminDailyVisitorsServiceImpl;
-
     }
 
-
-    /**
-     *
-     * @return 관리자 메인페이지 연결 메소드
-     */
     @GetMapping("/main")
-    public ModelAndView adminmain(Model model){
+    public ModelAndView adminmain(Model model) {
         List<AdminDailyVisitorsDTO> dailyVisitorsDTO = adminDailyVisitorsServiceImpl.dailyVisitors();
 
         int visitorCount = dailyVisitorsDTO.size();
         AdminMainStatisticsDTO adminMainStatisticsDTO = adminDailyVisitorsServiceImpl.dailySales();
 
-        log.info("=================visitorCount" +visitorCount);
-        log.info("=================dailyVisitorsDTO" +dailyVisitorsDTO);
-
         List<AdminInquiryDTO> adminInquiryDTO = adminDailyVisitorsServiceImpl.inquiry();
 
         List<AdminReviewDTO> adminReviewDTOS = adminDailyVisitorsServiceImpl.review();
-
-
-
 
         ModelAndView mv = new ModelAndView();
         model.addAttribute("dailyVisitors", visitorCount);
@@ -58,7 +43,4 @@ public class adminMainController {
 
         return mv;
     }
-
-
-
 }
